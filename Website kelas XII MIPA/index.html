@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- V7.9.8: Mobile Scroll Fix -->
+    <!-- V7.9.9: Replaced Info Section with Memory Station -->
+    <!-- V7.9.10: Memory Station Text Centering Fix -->
+    <title>XII MIPA 3 - SMAN 1 Losarang | Ekspedisi Kosmik </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Crucial: Include the Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* --- Variabel Warna & Tema (Konsisten) --- */
+        :root {
+            --bg-color: #030613;
+            --bg-gradient-start: #030613;
+            --bg-gradient-end: #0a0f2c;
+            --primary-color: #00e5ff; --secondary-color: #9f2fff; --accent-color: #ffae00; --farewell-accent: #ffd700;
+            --star-color: rgba(210, 230, 255, 0.65);
+            --text-color: #eafcff; --text-muted: #a8c4d8; --text-dark: #020308;
+            --card-bg: rgba(10, 15, 40, 0.9);
+            --card-border-color: rgba(0, 229, 255, 0.12); --card-border-hover: var(--primary-color); --card-shimmer-color: rgba(0, 229, 255, 0.1);
+            --gallery-border-color: rgba(159, 47, 255, 0.15);
+            --gallery-border-hover: var(--secondary-color);
+            --gallery-glow: 0 0 4px var(--secondary-color), 0 0 8px var(--secondary-color);
+            --modal-bg: rgba(3, 6, 19, 0.92);
+            --nebula-glow-1: rgba(0, 229, 255, 0.12); --nebula-glow-2: rgba(159, 47, 255, 0.08);
+            --shadow-color-primary: rgba(0, 229, 255, 0.15); --shadow-color-secondary: rgba(159, 47, 255, 0.15);
+            --glow-primary: 0 0 4px var(--primary-color), 0 0 8px var(--primary-color);
+            --glow-secondary: 0 0 4px var(--secondary-color), 0 0 8px var(--secondary-color); --glow-accent: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color); --glow-farewell: 0 0 6px var(--farewell-accent), 0 0 12px var(--farewell-accent);
+
+            --space-xs: 0.5rem; --space-sm: 0.85rem; --space-md: 1.25rem; --space-lg: 2.25rem; --space-xl: 3.5rem; --space-xxl: 5rem;
+            --transition-speed: 0.3s; --transition-speed-long: 0.6s; --transition-speed-xl: 0.8s;
+            --preloader-fade-duration: 0.7s;
+            --header-height-mobile: 60px;
+            /* RGB Color Variables (will be set by JS) */
+            --primary-color-rgb: 0, 229, 255; /* Default fallback */
+            --secondary-color-rgb: 159, 47, 255; /* Default fallback */
+        }
+
+        /* --- Gaya Dasar & Latar Belakang Statis --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: linear-gradient(170deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' viewBox='0 0 6 6'%3E%3Cpath fill='%23ffffff' fill-opacity='0.01' d='M1 5h1v1H1V5zm4-4h1v1H5V1z'%3E%3C/path%3E%3C/svg%3E");
+            background-color: var(--bg-color);
+            background-size: 400% 400%;
+            animation: animateBg 45s ease infinite alternate;
+            color: var(--text-color);
+            line-height: 1.65;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+        body.loaded { opacity: 1; overflow-y: auto; }
+        body.modal-open { overflow: hidden; }
+        @keyframes animateBg { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        /* --- PRELOADER --- */
+        #preloader { position: fixed; inset: 0; background: linear-gradient(180deg, #01030a 0%, #04081a 70%, #0f183e 100%); z-index: 9999; display: flex; justify-content: center; align-items: flex-end; opacity: 1; pointer-events: all; transition: opacity var(--preloader-fade-duration) ease-in-out; }
+        .rocket-container { width: 70px; height: 220px; position: relative; bottom: -40px; animation: launchRocket 1.3s ease-out forwards 0.15s; }
+        .rocket-emoji { font-size: 45px; text-align: center; display: block; transform: rotate(-45deg); text-shadow: 0 0 12px rgba(255, 255, 255, 0.4); animation: rocketShakePaused 0.3s infinite alternate ease-in-out; animation-play-state: paused; }
+        .flame { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); width: 18px; height: 45px; background: linear-gradient(180deg, yellow, var(--accent-color), red); border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%; filter: blur(4px); opacity: 0.8; animation: flameFlicker 0.15s infinite alternate; }
+        @keyframes launchRocket { 0% { bottom: -40px; opacity: 0; transform: scale(0.8); } 15% { bottom: 10vh; opacity: 1; transform: scale(1); } 85% { bottom: 105vh; opacity: 1; transform: scale(1.1); } 100% { bottom: 115vh; opacity: 0; transform: scale(0.9);} }
+        .rocket-container.shaking .rocket-emoji { animation-play-state: running; }
+        @keyframes flameFlicker { from { transform: translateX(-50%) scale(1, 1); opacity: 0.8; } to { transform: translateX(-50%) scale(0.9, 1.1); opacity: 1; } }
+        @keyframes rocketShakePaused { from { transform: rotate(-45deg) translateX(-1px); } to { transform: rotate(-45deg) translateX(1px); } }
+
+        /* --- Konten Utama Transition --- */
+        .main-header, main, .main-footer { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        body.loaded .main-header { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+        body.loaded main { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+        body.loaded .main-footer { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+
+        /* --- Background Effects Display Control --- */
+        .css-background-effects, #threejs-canvas { display: none; }
+        #star-canvas { display: none; opacity: 0; transition: opacity 1s ease-out; }
+
+        /* Background Effects - 2D Stars (Visible >= 576px) */
+        @media (min-width: 576px) {
+            #star-canvas { display: block; position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+             body.loaded #star-canvas { opacity: 0.85; transition-delay: 0.5s; }
+        }
+
+        /* Background Effects - CSS Nebula & ThreeJS (Visible >= 992px) */
+        @media (min-width: 992px) {
+            .css-background-effects { display: block; position: fixed; inset: 0; width: 100%; height: 100%; opacity: 0; z-index: -3; transition: opacity 1.5s ease-out; }
+             body.loaded .css-background-effects { opacity: 1; transition-delay: 0.6s; }
+             .css-background-effects::before, .css-background-effects::after { content: ''; position: absolute; width: 200vmax; height: 200vmax; top: 50%; left: 50%; transform-origin: center center; mix-blend-mode: screen; animation: slowRotate 190s linear infinite alternate; will-change: transform, opacity; }
+             .css-background-effects::before { background: radial-gradient(circle at 25% 35%, rgba(0, 229, 255, 0.14) 0%, transparent 32%), radial-gradient(circle at 70% 55%, rgba(0, 180, 255, 0.07) 0%, transparent 28%); transform: translate(-50%, -50%) rotate(0deg); opacity: 0.2; }
+             .css-background-effects::after { background: radial-gradient(circle at 75% 65%, rgba(159, 47, 255, 0.1) 0%, transparent 35%), radial-gradient(circle at 35% 75%, rgba(120, 0, 200, 0.05) 0%, transparent 30%); transform: translate(-50%, -50%) rotate(0deg); animation-delay: -95s; opacity: 0.2; }
+             @keyframes slowRotate { from { transform: translate(-50%, -50%) rotate(0deg) scale(1); } to { transform: translate(-50%, -50%) rotate(170deg) scale(1.08); } }
+
+            #threejs-canvas { display: block; position: fixed; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: lighten; opacity: 0; transition: opacity 1.2s ease-out; }
+             body.loaded #threejs-canvas { opacity: 0.4; transition-delay: 0.7s; }
+        }
+
+        /* === ENHANCED MOBILE BACKGROUND V2 === */
+        @media (max-width: 991px) {
+             body::before, body::after { content: ''; position: fixed; inset: 0; z-index: -3; pointer-events: none; background-repeat: no-repeat; opacity: 0; transition: opacity 1.8s ease-out 0.6s; will-change: opacity, transform; }
+             @keyframes mobileGlowPulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.015); } }
+             body.loaded::before, body.loaded::after { opacity: 1; animation: mobileGlowPulse 18s infinite alternate ease-in-out; }
+             body::before { background-image: radial-gradient(ellipse 40% 60% at 20% 90%, rgba(var(--primary-color-rgb), 0.14) 0%, transparent 70%), radial-gradient(ellipse 50% 50% at 85% 25%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 60%); background-size: 100% 100%, 90% 90%; background-position: center bottom, right top; mix-blend-mode: screen; transition-delay: 0.6s; }
+             body.loaded::before { opacity: 0.7; }
+             body::after { background-image: radial-gradient(ellipse 65% 55% at 55% 50%, rgba(var(--secondary-color-rgb), 0.11) 0%, transparent 65%); background-size: 100% 100%; background-position: center center; transition-delay: 0.9s; animation-delay: 2.5s; }
+             body.loaded::after { opacity: 0.8; }
+             #star-canvas { opacity: 0; }
+             body.loaded #star-canvas { opacity: 0.75; transition-delay: 0.8s; }
+        }
+
+        /* --- Container Utama --- */
+        .container { max-width: 1160px; margin: 0 auto; padding: 0 var(--space-md); position: relative; z-index: 1; }
+
+        /* --- Header --- */
+        .main-header { background: rgba(4, 8, 26, 0.75); backdrop-filter: blur(10px); padding: 0; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(var(--primary-color-rgb), 0.1); box-shadow: 0 3px 15px rgba(0, 229, 255, 0.06); transition: border-bottom-color 0.4s ease-out; will-change: border-bottom-color; }
+        body.is-scrolling-up .main-header { border-bottom-color: rgba(var(--primary-color-rgb), 0.35); }
+        .main-header .container { display: flex; justify-content: space-between; align-items: center; min-height: var(--header-height-mobile); position: relative; }
+        .logo { flex-shrink: 0; font-size: 1.4rem; font-weight: 700; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; transition: text-shadow var(--transition-speed) ease, color var(--transition-speed) ease; padding: var(--space-xs) 0; }
+        .logo:hover { text-shadow: var(--glow-primary); color: var(--primary-color); }
+        .logo span { font-size: 0.65em; display: block; font-weight: 400; color: var(--primary-color); opacity: 0.75; letter-spacing: 0.7px; margin-top: 1px; transition: opacity 0.3s ease, text-shadow 0.3s ease; will-change: opacity, text-shadow; }
+        .logo:hover span { opacity: 1; text-shadow: 0 0 3px rgba(var(--primary-color-rgb), 0.5); }
+        .main-nav { margin-left: auto; }
+        .menu-toggle { display: none; }
+
+        /* --- Desktop Navigation Styles --- */
+        @media (min-width: 992px) {
+             .main-nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
+             .main-nav ul li { margin-left: var(--space-md); }
+             .main-nav ul li a { color: var(--text-muted); text-decoration: none; font-weight: 600; text-transform: uppercase; padding: var(--space-sm) var(--space-xs); border-radius: 4px; font-size: 0.75rem; position: relative; letter-spacing: 0.7px; overflow: hidden; transition: color var(--transition-speed) ease, transform var(--transition-speed) ease, text-shadow var(--transition-speed) ease, background-color var(--transition-speed) ease; will-change: color, transform, text-shadow, background-color; }
+             .main-nav ul li a::after { content: ''; position: absolute; width: 100%; height: 2px; display: block; margin-top: 5px; bottom: 0; left: 0; background: var(--primary-color); border-radius: 1px; transform-origin: left; transform: scaleX(0); transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
+             .main-nav ul li a:hover, .main-nav ul li a.active, .main-nav ul li a[aria-current="page"] { color: var(--primary-color); transform: translateY(-1px); text-shadow: 0 0 6px var(--primary-color), 0 0 10px rgba(var(--primary-color-rgb), 0.4); background-color: rgba(var(--primary-color-rgb), 0.06); }
+             .main-nav ul li a:hover::after, .main-nav ul li a.active::after, .main-nav ul li a[aria-current="page"]::after { transform: scaleX(1); }
+             .menu-toggle { display: none !important; }
+        }
+
+        /* --- Hero Section --- */
+        .hero { min-height: 88vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--space-xl) var(--space-sm) var(--space-xxl) var(--space-sm); position: relative; overflow: hidden; }
+        .hero-content { max-width: 850px; }
+        @keyframes floatSpace { 0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); } 25% { transform: translate(-1px, 2px) rotate(-0.2deg) scale(1.005); } 50% { transform: translate(0px, -1px) rotate(0.1deg) scale(1); } 75% { transform: translate(1px, 1px) rotate(0.2deg) scale(1.005); } }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.2; margin-bottom: var(--space-md); background: linear-gradient(90deg, var(--primary-color), #f8fcff, var(--secondary-color), var(--accent-color), var(--primary-color)); -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 300% auto; filter: drop-shadow(0 0 15px var(--shadow-color-secondary)); transition: filter var(--transition-speed) ease, opacity var(--transition-speed-xl) ease-out; animation: floatSpace 15s ease-in-out infinite, gradientShine 7s linear infinite; will-change: transform, background-position, filter; }
+        .hero h1:hover { filter: drop-shadow(0 0 20px var(--shadow-color-secondary)) drop-shadow(0 0 8px var(--shadow-color-primary)); }
+        .hero p { font-size: clamp(1rem, 2.5vw, 1.2rem); max-width: 650px; margin: 0 auto var(--space-lg) auto; color: var(--text-muted); line-height: 1.75; transition: opacity var(--transition-speed-xl) ease-out, transform var(--transition-speed-xl) ease-out; }
+        @keyframes gradientShine { to { background-position: 300% center; } }
+        .scroll-down-indicator { position: absolute; bottom: var(--space-lg); left: 50%; transform: translateX(-50%); opacity: 0; animation: fadeInScrollDown 1s ease-out 2.5s forwards, pulseArrow 2s infinite ease-in-out 3.5s; transition: opacity var(--transition-speed) ease-out; z-index: 10; will-change: opacity, transform; }
+        body.loaded .scroll-down-indicator { animation-delay: 1.5s, 2.5s; }
+        .scroll-down-indicator.hidden { opacity: 0; pointer-events: none; animation-play-state: paused; }
+        .scroll-down-arrow { width: 20px; height: 20px; border-right: 2px solid var(--primary-color); border-bottom: 2px solid var(--primary-color); transform: rotate(45deg); }
+        @keyframes fadeInScrollDown { to { opacity: 0.6; } }
+        @keyframes pulseArrow { 0%, 100% { transform: rotate(45deg) translateY(0) scale(1); opacity: 0.6; } 50% { transform: rotate(45deg) translateY(6px) scale(1.05); opacity: 0.9; } }
+
+        /* --- CTA Buttons --- */
+        .cta-buttons { display: flex; justify-content: center; align-items: center; gap: var(--space-md); margin-top: var(--space-lg); flex-wrap: wrap; transition: opacity var(--transition-speed-xl) ease-out, transform var(--transition-speed-xl) ease-out; }
+        .cta-button { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(45deg, var(--accent-color), #ffc83d); color: var(--text-dark); padding: var(--space-sm) var(--space-lg); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; border-radius: 50px; transition: all 0.3s ease-out; box-shadow: 0 6px 15px rgba(255, 174, 0, 0.25), inset 0 -2px 3px rgba(0,0,0,0.12); border: none; cursor: pointer; letter-spacing: 1px; position: relative; overflow: hidden; will-change: transform, box-shadow; }
+        .cta-button .rocket-icon { margin-left: var(--space-xs); font-size: 1em; display: inline-block; transition: transform 0.3s ease; aria-hidden: true; }
+        .cta-button:hover .rocket-icon { transform: translateX(4px) rotate(8deg); }
+        .cta-button::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%); transform: scale(0); transition: transform 0.5s ease; border-radius: inherit; opacity: 0.3; pointer-events: none; }
+        .cta-button:hover::before { transform: scale(1.5); }
+        .cta-button:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 8px 22px rgba(255, 174, 0, 0.35), inset 0 -1px 2px rgba(0,0,0,0.05), var(--glow-accent); }
+        .cta-button:active { transform: translateY(-1px) scale(1); box-shadow: 0 4px 12px rgba(255, 174, 0, 0.3); }
+        .cta-button.secondary { background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); box-shadow: 0 5px 14px var(--shadow-color-primary), inset 0 0 5px rgba(0, 229, 255, 0.08); }
+        .cta-button.secondary:hover { background: rgba(0, 229, 255, 0.07); color: var(--text-color); box-shadow: 0 8px 20px var(--shadow-color-primary), var(--glow-primary), inset 0 0 8px rgba(0, 229, 255, 0.1); transform: translateY(-4px) scale(1.02); }
+
+        /* --- Content Sections & Observer Targets --- */
+        .content-section { padding: var(--space-xl) 0; position: relative; overflow: hidden; }
+        .observer-target { opacity: 0; transform: translateY(30px) scale(0.97); transition: opacity var(--transition-speed-long) ease-out, transform var(--transition-speed-long) ease-out; will-change: opacity, transform; }
+        .observer-target > * { transition-duration: var(--transition-speed-long); }
+        .observer-target.visible { opacity: 1 !important; transform: translateY(0) scale(1) !important; }
+
+        /* --- Section Titles Animation --- */
+        .section-title { text-align: center; font-size: clamp(2.1rem, 5vw, 3rem); font-weight: 900; margin-bottom: var(--space-xs); text-transform: uppercase; color: var(--primary-color); letter-spacing: 1.5px; text-shadow: var(--glow-primary); transition: text-shadow var(--transition-speed) ease; position: relative; }
+        .section-title.observer-target { opacity: 0; }
+        .section-title.visible { opacity: 1; }
+        .section-title.visible > span { display: inline-block; opacity: 0; will-change: transform, opacity; animation-duration: 0.7s; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1.1); animation-fill-mode: forwards; animation-delay: calc(var(--i, 0) * 0.05s); }
+        @keyframes revealCharSlideUpRotate { from { opacity: 0; transform: translateY(20px) scale(0.85) rotate(8deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } }
+        @keyframes revealCharDropIn { from { opacity: 0; transform: translateY(-35px) scale(0.6) rotateX(-45deg); } to { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); } }
+        @keyframes revealCharScaleIn { from { opacity: 0; transform: scale(1.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes revealCharSkewIn { from { opacity: 0; transform: skewX(-20deg) translateX(-20px) scale(0.9); } to { opacity: 1; transform: skewX(0deg) translateX(0) scale(1); } }
+        .section-title.visible > span.anim-slide { animation-name: revealCharSlideUpRotate; }
+        .section-title.visible > span.anim-drop { animation-name: revealCharDropIn; }
+        .section-title.visible > span.anim-scale { animation-name: revealCharScaleIn; }
+        .section-title.visible > span.anim-skew { animation-name: revealCharSkewIn; }
+        .section-title:hover { text-shadow: 0 0 6px var(--primary-color), 0 0 12px var(--primary-color), 0 0 20px var(--primary-color); }
+
+        /* --- Styling for #siswa section --- */
+        .section-title-container { text-align: center; margin-bottom: var(--space-md); }
+        .section-title-intro { display: block; font-size: 0.9rem; color: var(--text-muted); margin-top: 0; margin-bottom: var(--space-md); font-weight: 400; }
+        .wali-kelas-info { text-align: center; font-size: 1.1rem; color: var(--text-muted); margin-bottom: 0; }
+        .wali-kelas-info span { font-weight: 700; color: var(--text-color); text-shadow: 0 0 6px rgba(224, 248, 255, 0.6); background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 4px; display: inline-block; transition: transform 0.25s ease-out, text-shadow 0.25s ease-out; will-change: transform, text-shadow; }
+        .wali-kelas-info span:hover { transform: scale(1.04); text-shadow: 0 0 8px rgba(224, 248, 255, 0.8), 0 0 4px var(--secondary-color); }
+        .section-thank-you-message { display: block; text-align: center; font-size: 0.95rem; color: var(--text-muted); max-width: 750px; margin: 0 auto var(--space-xl) auto; font-weight: 400; line-height: 1.7; }
+
+        /* --- Students Grid & Cards --- */
+        .students-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-lg); }
+        .student-card { background: var(--card-bg); padding: var(--space-md) var(--space-sm); border-radius: 10px; text-align: center; border: 1px solid var(--card-border-color); backdrop-filter: blur(7px); position: relative; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0, 0.3); will-change: transform, box-shadow, border-color; }
+        .student-card::after { content: ''; position: absolute; top: 0; left: 0; width: 60%; height: 100%; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, var(--card-shimmer-color) 50%, rgba(255, 255, 255, 0) 100% ); transform: translateX(-150%) skewX(-20deg); opacity: 0; pointer-events: none; z-index: 1; }
+        .student-card.visible::after { animation: shimmer 4.5s infinite linear; animation-delay: calc(var(--reveal-delay, 0.5s) + 1s + (var(--i, 0) * 0.08s)); opacity: 1; }
+        @keyframes shimmer { 0% { transform: translateX(-150%) skewX(-20deg); } 100% { transform: translateX(220%) skewX(-20deg); } }
+        .student-card:hover { transform: translateY(-6px) scale(1.03) !important; border-color: var(--card-border-hover); box-shadow: 0 10px 22px var(--shadow-color-primary); }
+        .student-card-inner { position: relative; z-index: 2; }
+        .student-profile-img { display: block; width: 85px; height: 85px; border-radius: 50%; object-fit: cover; margin: 0 auto var(--space-sm) auto; border: 3px solid var(--card-border-color); background-color: rgba(var(--primary-color-rgb), 0.05); opacity: 0; transform: scale(0.6) translateY(15px); transition: transform 0.55s cubic-bezier(0.3, 0.8, 0.2, 1.2), opacity 0.45s ease-out, border-color 0.3s ease, box-shadow 0.3s ease; will-change: transform, opacity; transition-delay: calc(var(--reveal-delay, 0.1s) + 0.25s); }
+        .student-card.visible .student-profile-img { opacity: 1; transform: scale(1) translateY(0); }
+        .student-card:hover .student-profile-img { transform: scale(1.15) rotate(5deg); border-color: var(--primary-color); box-shadow: 0 0 10px var(--shadow-color-primary), 0 0 18px rgba(var(--primary-color-rgb), 0.2); }
+        .student-card h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-color); margin-bottom: var(--space-xs); }
+        .student-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* --- Gallery Section --- */
+        #gallery { padding: var(--space-xl) 0; border-top: 1px dashed var(--gallery-border-color); }
+        #gallery .section-title { color: var(--secondary-color); text-shadow: var(--glow-secondary); }
+        #gallery .section-subtitle { display: block; text-align: center; font-size: 0.95rem; color: var(--text-muted); margin-top: 0; margin-bottom: var(--space-lg); font-weight: 400; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-md); margin-top: var(--space-lg); }
+        .gallery-item { background: var(--card-bg); border: 1px solid var(--gallery-border-color); border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; aspect-ratio: 4 / 3; transition: transform var(--transition-speed) ease-out, box-shadow var(--transition-speed) ease-out, border-color var(--transition-speed) ease-out, opacity var(--transition-speed-long) ease-out; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); opacity: 0; transform: translateY(30px) scale(0.97); will-change: opacity, transform, box-shadow, border-color; transition-delay: calc(var(--reveal-delay, 0s)); }
+        .gallery-item.visible { opacity: 1; transform: translateY(0) scale(1); }
+        .gallery-item img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease; }
+        .gallery-item:hover { transform: translateY(-5px) scale(1.03); border-color: var(--gallery-border-hover); box-shadow: 0 8px 20px var(--shadow-color-secondary), var(--gallery-glow); }
+        .gallery-item:hover img { transform: scale(1.1); opacity: 0.9; }
+        .gallery-item::before { content: 'Lihat Detail'; position: absolute; inset: 0; background: rgba(10, 15, 40, 0.7); color: var(--text-color); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.5); opacity: 0; transition: opacity var(--transition-speed) ease; pointer-events: none; z-index: 1; backdrop-filter: blur(1px); }
+        .gallery-item:hover::before { opacity: 1; }
+
+        /* --- Image Modal --- */
+        #image-modal { position: fixed; inset: 0; background-color: var(--modal-bg); backdrop-filter: blur(6px); z-index: 1100; display: flex; align-items: center; justify-content: center; padding: var(--space-md); opacity: 0; visibility: hidden; transition: opacity var(--transition-speed) ease-out, visibility 0s var(--transition-speed) linear; }
+        #image-modal.active { opacity: 1; visibility: visible; transition: opacity var(--transition-speed) ease-out, visibility 0s 0s linear; }
+        .modal-content { position: relative; max-width: 90vw; max-height: 85vh; background: rgba(15, 22, 55, 0.8); padding: var(--space-xs); border-radius: 8px; border: 1px solid var(--gallery-border-color); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--shadow-color-secondary); transform: scale(0.9); opacity: 0; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out; display: flex; }
+        #image-modal.active .modal-content { transform: scale(1); opacity: 1; transition-delay: 0.05s; }
+        #modal-image { display: block; max-width: 100%; max-height: calc(85vh - 2 * var(--space-xs)); object-fit: contain; border-radius: 6px; margin: auto; }
+        #modal-close { position: absolute; top: -15px; right: -15px; width: 36px; height: 36px; background: var(--secondary-color); color: var(--text-dark); border: 2px solid var(--bg-color); border-radius: 50%; font-size: 1.3rem; font-weight: bold; line-height: 32px; text-align: center; cursor: pointer; transition: transform 0.2s ease-out, background-color 0.2s ease; z-index: 10; box-shadow: 0 3px 8px rgba(0,0,0,0.4); }
+        #modal-close:hover { background-color: #c45eff; transform: scale(1.1) rotate(90deg); }
+
+        /* --- Memory Station Section Styles (#info) --- */
+        #info {
+             padding: var(--space-xl) 0;
+             text-align: center;
+             min-height: 40vh;
+             border-top: 1px dashed rgba(var(--accent-color-rgb, 255, 174, 0), 0.25); /* Updated border color to use accent */
+             background: linear-gradient(rgba(4, 8, 26, 0.85), rgba(15, 25, 60, 0.9)),
+                         radial-gradient(ellipse at 70% 150%, rgba(var(--accent-color-rgb, 255, 174, 0), 0.1), transparent 60%);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             flex-direction: column;
+        }
+        #info .section-title {
+             color: var(--accent-color);
+             text-shadow: var(--glow-accent);
+             margin-bottom: var(--space-sm);
+        }
+        #info .section-subtitle { /* Style the specific subtitle */
+             display: block;
+             color: var(--text-muted);
+             font-size: 1rem;
+             margin-bottom: var(--space-lg);
+             font-weight: 400;
+        }
+        #info p { /* General paragraph style within #info */
+             color: var(--text-muted);
+             font-size: 1rem;
+             max-width: 650px;
+             margin: 0 auto var(--space-lg) auto;
+             line-height: 1.7;
+        }
+        #memory-message-board {
+            background: rgba(var(--accent-color-rgb, 255, 174, 0), 0.06);
+            border: 1px solid rgba(var(--accent-color-rgb, 255, 174, 0), 0.2);
+            border-radius: 8px;
+            padding: var(--space-md) var(--space-lg);
+            margin-top: var(--space-md);
+            max-width: 550px;
+            width: 90%;
+            /* Ensure horizontal centering of the board itself */
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 100px;
+            display: flex; /* Use flex to center the inner content vertically */
+            justify-content: center; /* Centers the inner content horizontally */
+            align-items: center; /* Centers the inner content vertically */
+            backdrop-filter: blur(3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(var(--accent-color-rgb, 255, 174, 0), 0.05);
+        }
+        #current-message {
+            /* Text alignment for the content *within* this div */
+            text-align: center;
+            transition: opacity 0.6s ease-in-out;
+            opacity: 1;
+            width: 100%; /* Takes full width allowed by flex parent */
+        }
+        #current-message.fading {
+            opacity: 0;
+        }
+        #message-text {
+            display: block; /* Block display, text-align: center on parent works */
+            font-size: 1.05rem;
+            color: var(--text-color);
+            font-style: italic;
+            margin-bottom: var(--space-sm);
+            line-height: 1.6;
+        }
+        #message-author {
+            display: block; /* Block display, text-align: center on parent works */
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        /* --- END: Memory Station Section Styles --- */
+
+
+        /* --- Farewell Section --- */
+        .farewell-section { padding: var(--space-xxl) 0; text-align: center; position: relative; border-top: 1px solid rgba(255, 215, 0, 0.3); background: linear-gradient(rgba(4, 8, 26, 0.96), rgba(25, 12, 50, 0.98)), radial-gradient(ellipse at 50% 130%, rgba(255, 215, 0, 0.15), transparent 60%); }
+        .farewell-section .section-title { color: var(--farewell-accent); text-shadow: var(--glow-farewell); margin-bottom: var(--space-md); }
+        .farewell-section .section-subtitle { /* Specific subtitle style */
+            display: block; text-align: center; font-size: 0.95rem; color: var(--text-muted); margin-top: 0; margin-bottom: var(--space-lg); font-weight: 400;
+        }
+        .farewell-message { max-width: 720px; margin: 0 auto var(--space-lg) auto; font-size: 1.1rem; color: #d8e0f0; line-height: 1.8; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .farewell-message strong { color: var(--farewell-accent); font-weight: 700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.7); }
+        .farewell-icon { font-size: 3rem; margin-top: 0; color: var(--farewell-accent); text-shadow: var(--glow-farewell); opacity: 0.8; will-change: transform, opacity; aria-hidden: true; }
+        @keyframes gentleBob { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; } 50% { transform: translateY(-10px) scale(1.08); opacity: 1; text-shadow: 0 0 9px var(--farewell-accent), 0 0 16px var(--farewell-accent);} }
+        .farewell-icon.observer-target.visible { animation: gentleBob 3.5s infinite ease-in-out 1.2s; }
+
+        /* --- Footer --- */
+        .main-footer { background: #02040d; padding: var(--space-lg) 0 var(--space-md) 0; margin-top: 0; text-align: center; border-top: 1px solid rgba(0, 229, 255, 0.1); font-size: 0.85rem; color: var(--text-muted); position: relative; z-index: 5; }
+        .main-footer p { margin-bottom: var(--space-sm); line-height: 1.6; }
+        .footer-links { margin-bottom: var(--space-md); }
+        .main-footer a { color: var(--primary-color); text-decoration: none; transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease; margin: 0 var(--space-xs); font-weight: 600; display: inline-block; }
+        .main-footer a:hover { color: var(--text-color); text-shadow: var(--glow-primary); transform: scale(1.06) translateY(-1px); }
+        .footer-credit { font-size: 0.8rem; color: #6a8094; margin-top: var(--space-md); margin-bottom: var(--space-lg); }
+        .footer-logo-container { display: flex; justify-content: center; align-items: center; gap: var(--space-lg); margin-top: 0; margin-bottom: var(--space-md); flex-wrap: wrap; }
+        .footer-logo { height: 35px; width: auto; object-fit: contain; display: block; filter: grayscale(30%) brightness(0.9) drop-shadow(0 2px 4px rgba(0,0,0, 0.5)); transition: opacity var(--transition-speed-long) ease-out, transform var(--transition-speed-long) ease-out, filter var(--transition-speed) ease-out; will-change: transform, filter; }
+        .footer-logo:hover { transform: scale(1.15) translateY(-3px) !important; filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 10px var(--shadow-color-primary)); }
+        .footer-farewell-note { font-size: 0.95rem; color: #a0c8e0; margin-top: var(--space-lg); font-weight: 600; }
+
+        /* --- Scroll To Top Button --- */
+        .scroll-to-top { position: fixed; bottom: var(--space-md); right: var(--space-md); width: 40px; height: 40px; background-color: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; visibility: hidden; transform: translateY(15px) scale(0.9); transition: opacity var(--transition-speed) ease, visibility 0s var(--transition-speed), transform var(--transition-speed) ease, background-color var(--transition-speed) ease; z-index: 1000; backdrop-filter: blur(4px); }
+        .scroll-to-top.visible { opacity: 0.8; visibility: visible; transform: translateY(0) scale(1); transition: opacity var(--transition-speed) ease, visibility 0s 0s, transform var(--transition-speed) ease, background-color var(--transition-speed) ease; }
+        .scroll-to-top-arrow { width: 10px; height: 10px; border-left: 2px solid var(--primary-color); border-top: 2px solid var(--primary-color); transform: translateY(2px) rotate(45deg); transition: border-color var(--transition-speed) ease; }
+        .scroll-to-top:hover { background-color: rgba(0, 229, 255, 0.25); transform: scale(1.1); opacity: 1; }
+        .scroll-to-top:hover .scroll-to-top-arrow { border-color: var(--text-color); }
+
+        /* --- Foreground Shooting Stars --- */
+        #shooting-star-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: hidden; }
+        .shooting-star { position: absolute; width: 2px; height: 2px; background: linear-gradient(-45deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%); border-radius: 50%; filter: drop-shadow(0 0 6px rgba(255, 255, 220, 0.8)); opacity: 0; animation: shoot var(--duration, 2s) linear var(--delay, 0s) 1 forwards; will-change: transform, opacity; }
+        .shooting-star::after { content: ''; position: absolute; top: 50%; left: 50%; transform-origin: 0% 0%; transform: translate(-50%, -50%) rotate(135deg) translateY(-50%); width: 1px; height: var(--tail-length, 70px); background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%); border-radius: 1px 0 0 1px; }
+        @keyframes shoot { 0% { opacity: 1; transform: translate(var(--start-x, 0vw), var(--start-y, 0vh)) scale(var(--size-scale, 1)); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--end-x, 100vw), var(--end-y, 100vh)) scale(var(--size-scale, 1)); } }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 991px) { /* Tablet & Mobile */
+             .menu-toggle { display: block; background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1.8rem; padding: var(--space-xs) var(--space-sm); z-index: 105; transition: color 0.3s ease; margin-left: var(--space-sm); }
+             .menu-toggle:hover { color: var(--primary-color); }
+             .main-nav { margin-left: 0; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(4, 8, 26, 0.97); backdrop-filter: blur(10px); border-top: 1px solid rgba(0, 229, 255, 0.1); overflow: hidden; max-height: 0; transition: max-height 0.4s ease-out; z-index: 101; }
+             .main-nav.active { max-height: calc(100vh - var(--header-height-mobile)); overflow-y: auto; }
+             .main-nav ul { list-style: none; display: flex; flex-direction: column; padding: var(--space-sm) 0; margin: 0; }
+             .main-nav ul li { margin-left: 0; width: 100%; }
+             .main-nav ul li a { color: var(--text-muted); text-decoration: none; font-weight: 600; text-transform: uppercase; padding: var(--space-md); display: block; width: 100%; transition: color 0.3s ease, background-color 0.3s ease; border-radius: 0; font-size: 0.9rem; text-align: left; position: relative; letter-spacing: 0.7px; border-bottom: 1px solid rgba(0, 229, 255, 0.08); }
+             .main-nav ul li:last-child a { border-bottom: none; }
+             .main-nav ul li a:hover, .main-nav ul li a.active, .main-nav ul li a[aria-current="page"] { color: var(--primary-color); background-color: rgba(0, 229, 255, 0.07); transform: none; }
+             .main-nav ul li a::after { display: none; }
+             .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-md); }
+             .students-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+             .section-title-container { margin-bottom: var(--space-sm); }
+             .section-thank-you-message { margin-bottom: var(--space-lg); font-size: 0.9rem;}
+             #info p { max-width: 90%; font-size: 0.95rem;}
+             #memory-message-board { padding: var(--space-md); min-height: 80px; }
+             #message-text { font-size: 0.95rem; }
+             #message-author { font-size: 0.8rem; }
+        }
+        @media (max-width: 767px) { /* Mobile specific */
+            #image-modal { padding: var(--space-sm); }
+            .modal-content { max-width: 95vw; max-height: 90vh; }
+            #modal-close { width: 32px; height: 32px; font-size: 1.1rem; line-height: 30px; top: -12px; right: -12px; }
+            .gallery-item::before { display: none; }
+             .students-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-md); }
+             .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+        }
+        @media (max-width: 479px) { /* Extra Small */
+            .cta-button { width: clamp(200px, 88%, 300px); }
+            .students-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-sm); }
+             .logo { font-size: 1.2rem; }
+             .logo span { font-size: 0.6em; }
+             .menu-toggle { font-size: 1.6rem; }
+             #info { padding: var(--space-lg) 0; }
+             #info .section-title { font-size: clamp(1.8rem, 7vw, 2.5rem); }
+             #message-text { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Foreground Shooting Stars Container -->
+    <div id="shooting-star-container" aria-hidden="true"></div>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="rocket-container">
+             <div class="rocket-emoji" aria-label="Roket meluncur">🚀</div>
+             <div class="flame"></div>
+        </div>
+    </div>
+
+    <!-- Background Effect Canvases & CSS Elements -->
+    <div class="css-background-effects" aria-hidden="true"></div>
+    <canvas id="star-canvas" aria-hidden="true"></canvas>
+    <canvas id="threejs-canvas" aria-hidden="true"></canvas>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+             <div class="logo observer-target">XII MIPA 3 <span>SMAN 1 LOSARANG 2024 / 2025 </span></div>
+             <button class="menu-toggle observer-target" id="menu-toggle" aria-label="Buka/tutup navigasi" aria-expanded="false" aria-controls="main-nav">
+                 &#9776; <!-- Hamburger Icon -->
+             </button>
+             <nav class="main-nav observer-target" id="main-nav">
+                 <ul>
+                     <li><a href="#hero">Pangkalan Luncur</a></li>
+                     <li><a href="#siswa">Spesifikasi Kru</a></li>
+                     <li><a href="#gallery">Jurnal Misi</a></li>
+                     <li><a href="#info">Stasiun Memori</a></li>
+                     <li><a href="#farewell">Gerbang Antarbintang</a></li>
+                 </ul>
+             </nav>
+         </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero observer-target" id="hero">
+             <div class="hero-content observer-target">
+                 <h1 class="observer-target">Menuju Galaksi Masa Depan</h1>
+                 <p class="observer-target">Tiga tahun cahaya telah berlalu. Kini saatnya meluncur ke masa depan. Semoga kita selalu dipertemukan dalam kebaikan. Teruslah bersinar, teman seperjuangan.</p>
+                 <div class="cta-buttons observer-target">
+                     <a href="#siswa" class="cta-button">Profil Kru<span class="rocket-icon" aria-hidden="true">🚀</span></a>
+                     <a href="#gallery" class="cta-button secondary">Kenangan</a>
+                 </div>
+             </div>
+              <div class="scroll-down-indicator" id="scroll-down">
+                  <div class="scroll-down-arrow"></div>
+              </div>
+        </section>
+
+        <!-- Students Section -->
+        <section class="content-section students-section observer-target" id="siswa">
+             <div class="container">
+                 <div class="section-title-container observer-target">
+                    <h2 class="section-title observer-target" data-original-text="Susunan Kru & Pembimbing">Susunan Kru & Pembimbing</h2>
+                    <div class="wali-kelas-info observer-target">
+                        Wali Kelas: <span>Hj. Rostati, S.pd</span>
+                    </div>
+                 </div>
+                 <span class="section-thank-you-message observer-target">Untuk Bu Hj. Rostati, S.Pd, Dalam tiga tahun perjalanan ini, Ibu adalah cahaya bintang yang tak pernah padam. Penuntun arah di tengah gelapnya kebingungan, Penguat sayap saat kami nyaris jatuh. Terima kasih, Bu, telah menjadi nahkoda hati dan ilmu kami. Doa kami, semoga kebaikan Ibu tak pernah lelah dihitung semesta.</span>
+                 <div class="students-grid">
+                      <!-- Student Cards -->
+                      <div class="student-card observer-target" data-index="0"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/abil 2.jpg" alt="Profil Abil Hasan Assyadilli"><h3>Abil Hasan Assyadilli</h3><p>Komandan Ekspedisi adalah sebuah petikan yang di muat</p></div></div>
+                      <div class="student-card observer-target" data-index="1"><div class="student-card-inner"><img class="student-profile-img" src="profile-2.png" alt="Profil Ahmad Nawafi"><h3>Ahmad Nawafi</h3><p>Perwira Sains Utama</p></div></div>
+                      <div class="student-card observer-target" data-index="2"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Angga 2.png" alt="Profil Angga Faturoman"><h3>Angga Faturoman</h3><p>Lautan itu dalam, tapi engkau menilainya dari permukaan</p></div></div>
+                      <div class="student-card observer-target" data-index="3"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Aprilia.jpg" alt="Profil Aprilia Rahmayanti"><h3>Aprilia Rahmayanti</h3><p>don't stop,keep going!aku bisa mencapai impianku @apriliaarhmaaa</p></div></div>
+                      <div class="student-card observer-target" data-index="4"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/chelsea.jpg" alt="Profil Chelsia Revalina"><h3>Chelsia Revalina</h3><p>raim laode said:hidup kalo bohong satu kali akan bohong selamanya @c.rv4lna</p></div></div>
+                      <div class="student-card observer-target" data-index="5"><div class="student-card-inner"><img class="student-profile-img" src="profile-6.png" alt="Profil Cici Haniyah"><h3>Cici Haniyah</h3><p>Pembuat Peta Hiperlintas</p></div></div>
+                      <div class="student-card observer-target" data-index="6"><div class="student-card-inner"><img class="student-profile-img" src="profile-7.png" alt="Profil Dede Amelia"><h3>Dede Amelia</h3><p>Strategis Sumber Daya Armada</p></div></div>
+                      <div class="student-card observer-target" data-index="7"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Dewangga.jpg" alt="Profil Dewangga Putra"><h3>Dewangga Putra</h3><p>In future we trust</p></div></div>
+                      <div class="student-card observer-target" data-index="8"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Dheva.jpg" alt="Profil Dheva Tri Septio"><h3>Dheva Tri Septio</h3><p>SEMUA BUKAN TENTANG TAKDIR dimana takdir terjadi itu lah hasil dari yang kita lakukan kemarin</p></div></div>
+                      <div class="student-card observer-target" data-index="9"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Dheandra.jpg" alt="Profil Dhiendra Deas Sya'banang"><h3>Dhiendra D.S</h3><p>sesungguhnya kesulitan pasti ada kemudahan</p></div></div>
+                      <div class="student-card observer-target" data-index="10"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Dita.jpg" alt="Profil Dita Nazhelia"><h3>Dita Nazhelia</h3><p>kata jumbo kita harus jadi pendengar yang baik jika kita ingin di dengarkan @ditanzhellia_</p></div></div>
+                      <div class="student-card observer-target" data-index="11"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Farrah.jpg" alt="Profil Farrah Rizka Rena Fadillah"><h3>Farrah Rizka Rena Fadillah</h3><p>Kamu akan selalu merasa gagal bila kamu tidak pernah mencoba @youronlyfaar</p></div></div>
+                      <div class="student-card observer-target" data-index="12"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/dayat.jpg" alt="Profil Hidayat Adi Yaksha"><h3>Hidayat Adi Yaksha</h3><p>Selalu Always</p></div></div>
+                      <div class="student-card observer-target" data-index="13"><div class="student-card-inner"><img class="student-profile-img" src="profile-14.png" alt="Profil Hilda Alvidha"><h3>Hilda Alvidha</h3><p>Pakar Geologi Kristalin</p></div></div>
+                      <div class="student-card observer-target" data-index="14"><div class="student-card-inner"><img class="student-profile-img" src="profile-15.png" alt="Profil Iska Beni"><h3>Iska Beni</h3><p>Inovator Solusi Adaptif</p></div></div>
+                      <div class="student-card observer-target" data-index="15"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Julia.jpg" alt="Profil Juliya Nurhasanah"><h3>Juliya Nurhasanah</h3><p>jadilah versi terbaik dari dirimu sendiri</p></div></div>
+                      <div class="student-card observer-target" data-index="16"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Astronot.jpeg" alt="Profil Muh. Ulinuhuha"><h3>Muh. Ulinuhuha</h3><p>Ahli Navigasi Kuantum</p></div></div>
+                      <div class="student-card observer-target" data-index="17"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Gilang 2.png" alt="Profil Muhammad Gilang Al Ghifari"><h3>M. Gilang Al-ghipari</h3><p>bukan tentang jadi yang paling bersinar, tapi tentang tahu kapan harus diam dan menikmati perjalanan.</p></div></div>
+                      <div class="student-card observer-target" data-index="18"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Sardy 2.jpg" alt="Profil Muhamad Sardi"><h3>Muhamad Sardi</h3><p>don't be afraid to shine.</p></div></div>
+                      <div class="student-card observer-target" data-index="19"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Nadia.jpg" alt="Profil Nadia Qisma Zulfiah"><h3>Nadia Qisma Zulfiah</h3><p>Tetap fokus pada tujuanmu dan jangan terganggu oleh hal-hal yang tidak penting @nnnadiaazzzzz</p></div></div>
+                      <div class="student-card observer-target" data-index="20"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Niken.jpg" alt="Profil Niken Aulia Agustin"><h3>Niken Aulia Agustin</h3><p>serenity in simplicity @nn.nikenaulyz</p></div></div>
+                      <div class="student-card observer-target" data-index="21"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Ramelia.jpg" alt="Profil Ramelia Visandi"><h3>Ramelia Visandi</h3><p>you didn't cheat bcs i lacked something, u cheated bcs u lack everything. thanks for coming!</p></div></div>
+                      <div class="student-card observer-target" data-index="22"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/sharbina.jpg" alt="Profil Sabina Azzahrah Maulani"><h3>Sabina Azzahrah Maulani</h3><p>jangan takut berbeda,itu yang membuatmu istimewa @sbinaazahrah </p></div></div>
+                      <div class="student-card observer-target" data-index="23"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/shashaa.jpg" alt="Profil Shasya Dwi Indhira"><h3>Shasya Dwi Indhira</h3><p>be a girl with a mind, a woman with attitude, and lady with class @shsyadww</p></div></div>
+                      <div class="student-card observer-target" data-index="24"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Sri.jpg" alt="Profil Sri Fitri Yani"><h3>Sri Fitri Yani</h3><p>they don't have to fit in with the other stars to be important they just have to be themselves</p></div></div>
+                      <div class="student-card observer-target" data-index="25"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Nano.jpg" alt="Profil Sukarno Wijaya"><h3>Sukarno Wijaya</h3><p>Tahta yen due kedudukan yen tahta tanpa harta,kurang bahagia.mulane sing aran korupsi kuh uis bebudaya uis mendarah daging angel di ilang akene</p></div></div>
+                      <div class="student-card observer-target" data-index="26"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Bang Epu.jpg" alt="Profil Syaefudin"><h3>Syaefudin</h3><p>sekalipun hanya berjalan pelan, tapi lebih baik dibandingkan mereka yang hanya diam</p></div></div>
+                      <div class="student-card observer-target" data-index="27"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Sharfinah 2.jpg" alt="Profil Syafina Chalimatu Sholehah"><h3>Syafina Chalimatu Sholehah</h3><p>dan buat aku jadiilah diri aku sendiri,dokumen asli jauh lebih baik daripada salinan @syafinaaaacs_</p></div></div>
+                      <div class="student-card observer-target" data-index="28"><div class="student-card-inner"><img class="student-profile-img" src="profile-29.png" alt="Profil Titan Maulana Rahman"><h3>Titan Maulana Rahman</h3><p>Ahli Reparasi Mecha</p></div></div>
+                      <div class="student-card observer-target" data-index="29"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/astronot 2.jpeg" alt="Profil Vannysa Zahra Nurjannah"><h3>Vannysa Zahra Nurjannah</h3><p>Pakar Geologi Kristalin</p></div></div>
+                      <div class="student-card observer-target" data-index="30"><div class="student-card-inner"><img class="student-profile-img" src="FOTO/Zahra.jpg" alt="Profil Zahrah Rahmadani Dinata"><h3>Zahrah Rahmadani Dinata</h3><p>Banggalah dengan siapa dirimu, dan jangan malu dengan cara orang lain melihatmu</p></div></div>
+                      <div class="student-card observer-target" data-index="31"><div class="student-card-inner"><img class="student-profile-img" src="profile-32.png" alt="Profil Awak-32"><h3>Awak-32</h3><p>Penyetel Deflektor Energi</p></div></div>
+                 </div>
+            </div>
+         </section>
+
+        <!-- Gallery Section -->
+        <section class="content-section observer-target" id="gallery">
+             <div class="container">
+                <div class="observer-target">
+                    <h2 class="section-title observer-target" data-original-text="Jurnal Misi: Arsip Visual">Jurnal Misi: Arsip Visual</h2>
+                    <span class="section-subtitle observer-target" style="color: var(--text-muted);">Rekaman Perjalanan Lintas Waktu</span>
+                </div>
+                <div class="gallery-grid">
+                    <!-- Gallery Items -->
+                    <div class="gallery-item observer-target" data-index="0"> <img src="FOTO  BARENG/1.png" alt="Kenangan Misi 1"> </div>
+                    <div class="gallery-item observer-target" data-index="1"> <img src="FOTO  BARENG/2.png" alt="Kenangan Misi 2"> </div>
+                    <div class="gallery-item observer-target" data-index="2"> <img src="FOTO  BARENG/3.png" alt="Kenangan Misi 3"> </div>
+                    <div class="gallery-item observer-target" data-index="3"> <img src="FOTO  BARENG/4.png" alt="Kenangan Misi 4"> </div>
+                    <div class="gallery-item observer-target" data-index="4"> <img src="FOTO  BARENG/5.png" alt="Kenangan Misi 5"> </div>
+                    <div class="gallery-item observer-target" data-index="5"> <img src="FOTO  BARENG/6.png" alt="Kenangan Misi 6"> </div>
+                    <div class="gallery-item observer-target" data-index="6"> <img src="FOTO  BARENG/7.png" alt="Kenangan Misi 7"> </div>
+                    <div class="gallery-item observer-target" data-index="7"> <img src="FOTO  BARENG/8.png" alt="Kenangan Misi 8"> </div>
+                    <div class="gallery-item observer-target" data-index="8"> <img src="FOTO  BARENG/9.png" alt="Kenangan Misi 9"> </div>
+                    <div class="gallery-item observer-target" data-index="9"> <img src="FOTO  BARENG/10.png" alt="Kenangan Misi 10"> </div>
+                    <div class="gallery-item observer-target" data-index="10"><img src="FOTO  BARENG/11.png" alt="Kenangan Misi 11"></div>
+                    <div class="gallery-item observer-target" data-index="11"><img src="FOTO  BARENG/12.png" alt="Kenangan Misi 12"></div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Memory Station Section -->
+        <section class="content-section observer-target" id="info">
+             <div class="container observer-target">
+                 <h2 class="section-title observer-target" data-original-text="Stasiun Memori: Pesan Lintas Waktu">Stasiun Memori: Pesan Lintas Waktu</h2>
+                 <span class="section-subtitle observer-target">Sinyal Kenangan dari Orbit Kebersamaan</span>
+                 <p class="observer-target">
+                     Misi kita di SMANLOS mungkin telah usai, tapi rekaman data dari tiga tahun perjalanan tersimpan abadi di Stasiun Memori ini. Setiap tawa, tantangan, dan momen kebersamaan adalah sinyal berharga yang membentuk kita. Biarkan frekuensi kenangan ini menjadi kompas saat menavigasi galaksi masa depan. Tune in kapan saja untuk mengingat dari mana kita berasal.
+                 </p>
+                 <div id="memory-message-board" class="observer-target">
+                     <div id="current-message">
+                         <span id="message-text">Memuat transmisi kenangan...</span>
+                         <span id="message-author">Stasiun Memori XII MIPA 3</span>
+                     </div>
+                 </div>
+             </div>
+         </section>
+
+        <!-- Farewell Section -->
+        <section class="content-section farewell-section observer-target" id="farewell">
+             <div class="container observer-target">
+                 <h2 class="section-title observer-target" data-original-text="Membuka Gerbang Antarbintang">Membuka Gerbang Antarbintang</h2>
+                 <span class="section-subtitle observer-target">Transisi Menuju Eksistensi Baru</span>
+                 <p class="farewell-message observer-target">
+                     Misi awal kita di gugus bintang SMAN 1 Losarang telah mencapai konklusi. Ikatan yang terbentuk di antara medan gravitasi kelas XII MIPA 3 akan menjadi konstelasi pemandu abadi. Meski kapal kita berpisah jalur menuju nebula masa depan yang berbeda, jejak warp persahabatan ini takkan pudar oleh ruang dan waktu. Terima kasih, Kru Galaksi MIPA 3, untuk tiga tahun navigasi yang tak terlupakan. Sampai jumpa di galaksi berikutnya! <strong>Good luck!</strong>
+                 </p>
+                  <div class="farewell-icon observer-target" aria-hidden="true">🌀</div>
+             </div>
+         </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer observer-target">
+         <div class="container">
+               <div class="footer-links observer-target">
+                    <a href="https://www.instagram.com/twelveemipaflicks/" target="_blank" rel="noopener noreferrer">twelveemipaflicks (IG)</a> |
+                   <a href="https://www.instagram.com/sman1losarang/" target="_blank" rel="noopener noreferrer">SMAN 1 LOSARANG (IG)</a>
+               </div>
+               <p class="observer-target">&copy; Stardate 2025 // XII MIPA 3 SMAN 1 LOSARANG // All rights reserved in this spacetime quadrant.</p>
+               <p class="footer-credit observer-target">Website by: M.GILANG AL-GHIPARI</p>
+                <div class="footer-logo-container observer-target">
+                     <img src="FOTO/Logo Smanlos.png" alt="Lambang Komando SMANLA" class="footer-logo observer-target" >
+                    <img src="FOTO/LOGO JABAR.png" alt="Segel Protektorat Jawa Barat" class="footer-logo observer-target" >
+                    <img src="FOTO/NETFLIX.png" alt="Insignia Skuadron XII MIPA 3" class="footer-logo observer-target" >
+                </div>
+               <p class="footer-farewell-note observer-target">✨ Ad Astra Per Aspera ✨</p>
+           </div>
+    </footer>
+
+     <!-- Scroll to Top Button -->
+     <button class="scroll-to-top" id="scrollToTopBtn" aria-label="Gulir ke atas">
+         <div class="scroll-to-top-arrow" aria-hidden="true"></div>
+     </button>
+
+     <!-- Image Modal -->
+     <div id="image-modal" role="dialog" aria-modal="true" aria-labelledby="modal-image-label">
+         <div class="modal-content">
+             <img src="" alt="Tampilan diperbesar dari kenangan misi" id="modal-image">
+              <span id="modal-image-label" style="display: none;">Tampilan Gambar Diperbesar</span>
+             <button id="modal-close" aria-label="Tutup tampilan gambar">&times;</button>
+         </div>
+     </div>
+
+    <!-- Background Music Player -->
+    <audio id="background-music" loop>
+        <source src="MUSIK/M83 - OUTRO (Lyrics) (mp3cut.net).mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+
+    <!-- JavaScript (Unchanged from previous version with Memory Station) -->
+    <script>
+        // --- Preloader Logic ---
+        function handlePageLoad() {
+            console.log("DOM Content Loaded - v7.9.10 Memory Station Fix"); // Version Updated
+            const body = document.body; const preloader = document.getElementById('preloader'); const rocketContainer = preloader ? preloader.querySelector('.rocket-container') : null; if (!body) { console.error("Body element not found!"); return; } if (!preloader) { console.warn("Preloader not found."); body.style.opacity='1'; body.classList.add('loaded'); initializePageComponents(); return; } body.style.opacity = '0'; if (rocketContainer) { setTimeout(() => rocketContainer.classList.add('shaking'), 250); setTimeout(() => rocketContainer.classList.remove('shaking'), 1200); } const rocketLaunchDuration=1300; const preloaderFadeDelay=rocketLaunchDuration+100; const preloaderFadeDurationMs=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--preloader-fade-duration')||'0.7s')*1000; setTimeout(()=>{ preloader.style.opacity='0'; preloader.style.pointerEvents='none'; const bodyFadeInDelay=150; setTimeout(()=>{ body.style.opacity='1'; body.classList.add('loaded'); initializePageComponents(); }, bodyFadeInDelay); }, preloaderFadeDelay); preloader.addEventListener('transitionend', function h(e){ if(e.propertyName==='opacity'&&e.target===preloader&&preloader.parentNode){ preloader.parentNode.removeChild(preloader); preloader.removeEventListener('transitionend', h); } }); setTimeout(() => { if (preloader && preloader.parentNode) preloader.parentNode.removeChild(preloader); }, preloaderFadeDelay + preloaderFadeDurationMs + 500);
+        }
+
+        // --- 2D Star Canvas Logic ---
+        const starCanvas=document.getElementById('star-canvas'); const starCtx=starCanvas?starCanvas.getContext('2d'):null; let stars=[]; let canvasWidth=window.innerWidth; let canvasHeight=window.innerHeight; let starRAFId=null; function resizeStarCanvas(){ if(!starCtx) return; canvasWidth=window.innerWidth; canvasHeight=window.innerHeight; starCanvas.width=canvasWidth; starCanvas.height=canvasHeight; if(document.body.classList.contains('loaded')&&window.matchMedia('(min-width: 576px)').matches){initStars();} } function random(min,max){return Math.random()*(max-min)+min;} class Star{ constructor(){this.reset();this.y=random(0,canvasHeight);this.twinkleSpeed=random(0.008,0.035);this.twinkleOffset=random(0,Math.PI*2);} reset(){this.x=random(-60,canvasWidth+60);this.y=-random(10,60);this.size=random(0.5,1.5);this.speed=random(0.25,1.0);this.baseOpacity=random(0.35,0.75);this.angle=Math.PI/3+random(-0.45,0.45);this.vx=Math.cos(this.angle)*this.speed;this.vy=Math.sin(this.angle)*this.speed;} update(deltaTime){this.x+=this.vx*(deltaTime/16.67);this.y+=this.vy*(deltaTime/16.67); if(this.y>canvasHeight+60||this.x>canvasWidth+60||this.x<-60){this.reset();} } draw(time){ if(!starCtx) return; const twinkle=(Math.sin(time*this.twinkleSpeed+this.twinkleOffset)+1)/2; const currentOpacity=this.baseOpacity*(0.45+twinkle*0.55); starCtx.beginPath(); starCtx.arc(this.x,this.y,this.size,0,Math.PI*2); starCtx.fillStyle=`rgba(210, 230, 255, ${currentOpacity})`; starCtx.shadowColor="rgba(210, 230, 255, 0.35)"; starCtx.shadowBlur=this.size>1?4:2; starCtx.fill(); } } function initStars(){ if(!starCtx)return; const numStars=Math.max(150,Math.min(800,Math.floor(canvasWidth*canvasHeight/6000))); stars=[]; for(let i=0;i<numStars;i++){stars.push(new Star());} if(starCanvas.style.display==='block'&&starCanvas.style.opacity!=='0'){const now=performance.now();starCtx.clearRect(0,0,canvasWidth,canvasHeight);starCtx.shadowBlur=0;stars.forEach(star=>star.draw(now*0.001));} } let lastStarTime=0; function animateStars(currentTime){ starRAFId=requestAnimationFrame(animateStars); if(!starCtx||!document.body.classList.contains('loaded')||document.hidden) return; const deltaTime=currentTime-lastStarTime; if(deltaTime<16) return; lastStarTime=currentTime; starCtx.clearRect(0,0,canvasWidth,canvasHeight); starCtx.shadowBlur=0; stars.forEach(star=>{star.update(deltaTime);star.draw(currentTime*0.001);}); }
+
+        // --- Three.js Logic ---
+        let scene, camera, renderer, particles, asteroidsGroup; let flyingShip; let mouseX = 0, mouseY = 0; let windowHalfX = window.innerWidth / 2; let windowHalfY = window.innerHeight / 2; const clock = typeof THREE !== 'undefined' ? new THREE.Clock() : null; let threeRAFId = null; function createAsteroid(){ const size=random(0.1,0.5); const geometry=new THREE.SphereGeometry(size,random(5,8),random(5,8)); const material=new THREE.MeshStandardMaterial({color:Math.random()*0x444444+0x111111,roughness:random(0.7,0.95),metalness:random(0.01,0.1),flatShading:true}); const asteroid=new THREE.Mesh(geometry,material); const radius=random(10,25); const phi=Math.acos(-1+(2*Math.random())); const theta=Math.random()*Math.PI*2; asteroid.position.set(radius*Math.sin(phi)*Math.cos(theta),radius*Math.sin(phi)*Math.sin(theta)*random(0.5,1.0),radius*Math.cos(phi)); asteroid.rotation.set(Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2); asteroid.userData.rotationSpeed=new THREE.Vector3(random(-0.003,0.003),random(-0.003,0.003),random(-0.003,0.003)); return asteroid; } function resetFlyingShipPosition(ship){ if(!ship)return; ship.userData.startX=-35; ship.userData.endX=35; ship.userData.startY=random(-8,8); ship.userData.startZ=random(-5,5); ship.position.set(ship.userData.startX,ship.userData.startY,ship.userData.startZ); ship.userData.direction=new THREE.Vector3(1,random(-0.1,0.1),random(-0.05,0.05)).normalize(); ship.userData.speed=random(3.5,6.5); } function initThreeJS(){ const canvas=document.getElementById("threejs-canvas"); if(!canvas||typeof THREE === 'undefined'||!clock){ if(canvas&&canvas.style)canvas.style.display='none'; return; } console.log("Initializing Three.js..."); try { scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x04081a, 0.045); camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000); camera.position.z = 22; renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); renderer.setClearColor(0x000000, 0); const ambientLight = new THREE.AmbientLight(0x506070, 0.9); scene.add(ambientLight); const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4); directionalLight.position.set(0.6, 1, 0.8); scene.add(directionalLight); const particleCount = 15000; const particleGeometry = new THREE.BufferGeometry(); const positions = new Float32Array(particleCount * 3); const colors = new Float32Array(particleCount * 3); const color1 = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || "#00e5ff"); const color2 = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim() || "#9f2fff"); const color3 = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || "#ffae00"); const colorWhite = new THREE.Color("#ffffff"); for (let i = 0; i < particleCount; i++) { const i3 = i * 3; const radius = random(6, 20); const sphereFactor = Math.pow(Math.random(), 1.8); const randomRadius = sphereFactor * radius; const phi = Math.acos(-1 + (2 * Math.random())); const theta = Math.random() * Math.PI * 2; positions[i3] = randomRadius * Math.sin(phi) * Math.cos(theta); positions[i3 + 1] = randomRadius * Math.sin(phi) * Math.sin(theta) * 0.75; positions[i3 + 2] = randomRadius * Math.cos(phi); const dist = Math.sqrt(positions[i3]**2 + positions[i3+1]**2 + positions[i3+2]**2) / (radius + 5); let finalColor; const colorRand = Math.random(); if (colorRand < 0.15) { finalColor = color1.clone().lerp(colorWhite, random(0.6, 0.9)); } else if (dist < 0.35) { finalColor = color2.clone().lerp(color1, dist / 0.35); } else if (dist < 0.7) { finalColor = color1.clone().lerp(color2, (dist - 0.35) / 0.35); } else { finalColor = color1.clone().lerp(color3, Math.min((dist - 0.7) / 0.3 * 0.10, 0.08)); } colors[i3] = finalColor.r; colors[i3 + 1] = finalColor.g; colors[i3 + 2] = finalColor.b; } particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3)); const particleMaterial = new THREE.PointsMaterial({ size: 0.05, sizeAttenuation: true, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.6 }); particles = new THREE.Points(particleGeometry, particleMaterial); particles.rotation.x = Math.random() * Math.PI; particles.rotation.y = Math.random() * Math.PI; scene.add(particles); asteroidsGroup = new THREE.Group(); const numAsteroids = Math.max(15, Math.min(40, Math.floor(window.innerWidth / 45))); for (let i = 0; i < numAsteroids; i++) { asteroidsGroup.add(createAsteroid()); } scene.add(asteroidsGroup); const shipRadius = 0.15; const shipHeight = 0.6; const shipGeometry = new THREE.ConeGeometry(shipRadius, shipHeight, 8); const shipMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaff, metalness: 0.7, roughness: 0.4, emissive: 0x66ddff, emissiveIntensity: 0.3 }); flyingShip = new THREE.Mesh(shipGeometry, shipMaterial); flyingShip.userData = {}; resetFlyingShipPosition(flyingShip); flyingShip.rotation.z = -Math.PI / 2; scene.add(flyingShip); document.addEventListener('mousemove', onDocumentMouseMove, { passive: true }); window.addEventListener('resize', onWindowResizeThree, false); if (!threeRAFId) animateThreeJS(); } catch (error) { console.error("Error initializing Three.js:", error); if(canvas && canvas.style) canvas.style.display = 'none'; } } function onDocumentMouseMove(event) { mouseX = (event.clientX - windowHalfX) * 0.05; mouseY = (event.clientY - windowHalfY) * 0.05; } function animateThreeJS() { threeRAFId = requestAnimationFrame(animateThreeJS); if (!renderer || !scene || !camera || !document.body.classList.contains('loaded') || document.hidden) return; const elapsedTime = clock.getElapsedTime(); const deltaTime = clock.getDelta(); if(particles) particles.rotation.y = elapsedTime * 0.016; if(asteroidsGroup) asteroidsGroup.children.forEach(asteroid => { asteroid.rotation.x += asteroid.userData.rotationSpeed.x * deltaTime * 50; asteroid.rotation.y += asteroid.userData.rotationSpeed.y * deltaTime * 50; asteroid.rotation.z += asteroid.userData.rotationSpeed.z * deltaTime * 50; }); if (flyingShip) { flyingShip.position.x += flyingShip.userData.direction.x * flyingShip.userData.speed * deltaTime; flyingShip.position.y += flyingShip.userData.direction.y * flyingShip.userData.speed * deltaTime; flyingShip.position.z += flyingShip.userData.direction.z * flyingShip.userData.speed * deltaTime; const bobbleFrequency = 0.8; const bobbleAmplitude = 0.003; flyingShip.position.y += Math.sin(elapsedTime * bobbleFrequency + flyingShip.userData.startY) * bobbleAmplitude; if (flyingShip.position.x > flyingShip.userData.endX) { resetFlyingShipPosition(flyingShip); } } const targetX = mouseX * -0.0005; const targetY = mouseY * -0.0005; if(camera){ camera.position.x += (targetX - camera.position.x) * 0.025; camera.position.y += (targetY - camera.position.y) * 0.025; camera.lookAt(scene.position); } renderer.render(scene, camera); } function onWindowResizeThree() { if (camera && renderer) { windowHalfX = window.innerWidth / 2; windowHalfY = window.innerHeight / 2; camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); } }
+
+        // --- Mobile Menu Toggle Logic ---
+        const menuToggle=document.getElementById('menu-toggle'); const mainNav=document.getElementById('main-nav'); function closeMobileMenu(){ if(mainNav&&menuToggle&&mainNav.classList.contains('active')){ mainNav.classList.remove('active'); menuToggle.setAttribute('aria-expanded','false'); } } if (menuToggle && mainNav) { menuToggle.addEventListener('click',()=>{ const isExpanded = menuToggle.getAttribute('aria-expanded')==='true'; menuToggle.setAttribute('aria-expanded',!isExpanded); mainNav.classList.toggle('active'); }); mainNav.querySelectorAll('a').forEach(link=>{ link.addEventListener('click',(e)=>{ let shouldCloseMenu=true; if(link.getAttribute('href').startsWith('#')){ e.preventDefault(); const targetId=link.getAttribute('href'); const targetElement=document.querySelector(targetId); if(targetElement){ const headerOffset=document.querySelector('.main-header')?document.querySelector('.main-header').offsetHeight+10:70; const elementPosition=targetElement.getBoundingClientRect().top; const offsetPosition=elementPosition+window.pageYOffset-headerOffset; window.scrollTo({top:offsetPosition,behavior:'smooth'}); setActiveNavLink(targetId); } else { shouldCloseMenu = false; } } if(shouldCloseMenu) closeMobileMenu(); }); }); } else { console.warn("Mobile menu elements not found."); }
+
+        // --- Active Nav Link Highlighting ---
+        function setActiveNavLink(targetId) { if(!mainNav)return; let foundActive=false; mainNav.querySelectorAll("a").forEach(link=>{ const linkHref=link.getAttribute('href'); if(linkHref===targetId){link.classList.add("active");link.setAttribute('aria-current','page'); foundActive=true;} else {link.classList.remove("active");link.removeAttribute('aria-current');} }); if(!foundActive && (targetId === '#hero' || (!targetId && window.scrollY < 100))) { const firstLink = mainNav.querySelector('a[href="#hero"]'); if(firstLink){ firstLink.classList.add("active"); firstLink.setAttribute('aria-current', 'page'); } } }
+
+        // --- Scroll Handling ---
+        let scrollTimeout; const scrollDownBtn=document.getElementById('scroll-down'); const scrollToTopBtn=document.getElementById('scrollToTopBtn'); let lastScrollY=window.pageYOffset||document.documentElement.scrollTop; let scrollStopTimer; function handleScroll(){ clearTimeout(scrollTimeout); clearTimeout(scrollStopTimer); scrollTimeout=setTimeout(()=>{ const currentScrollY=window.pageYOffset||document.documentElement.scrollTop; if(scrollDownBtn)scrollDownBtn.classList.toggle('hidden',currentScrollY>50); if(scrollToTopBtn)scrollToTopBtn.classList.toggle('visible',currentScrollY>window.innerHeight*0.5); if(currentScrollY<lastScrollY && currentScrollY > 0){ document.body.classList.add('is-scrolling-up'); } else { document.body.classList.remove('is-scrolling-up'); } let currentSectionId = null; const sections = document.querySelectorAll('main section[id]'); const scrollPosition = currentScrollY + window.innerHeight * 0.25; sections.forEach(section => { if (section.offsetTop <= scrollPosition && (section.offsetTop + section.offsetHeight) > scrollPosition ) { currentSectionId = '#' + section.id; } }); if (!currentSectionId && (currentScrollY + window.innerHeight >= document.body.offsetHeight - 100)) { const lastSection = sections[sections.length - 1]; if(lastSection) currentSectionId = '#' + lastSection.id; } if (!currentSectionId && currentScrollY < window.innerHeight * 0.3) { currentSectionId = '#hero'; } setActiveNavLink(currentSectionId); lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY; scrollStopTimer = setTimeout(()=>{ document.body.classList.remove('is-scrolling-up'); }, 150); }, 15); }
+
+        // --- Title Animation Logic ---
+        let titleAnimationCounter=0; const titleAnimationClasses=['anim-slide','anim-drop','anim-scale','anim-skew']; function animateTitleOnVisible(titleElement){ if(!titleElement||titleElement.classList.contains('title-animated'))return; const text=titleElement.getAttribute('data-original-text'); if(!text){titleElement.style.opacity=1;return;} titleElement.innerHTML=''; titleElement.style.opacity=1; titleElement.classList.add('title-animated'); const animationClass=titleAnimationClasses[titleAnimationCounter%titleAnimationClasses.length]; titleAnimationCounter++; text.split('').forEach((char,index)=>{ const span=document.createElement('span'); span.textContent=char===' '?'\u00A0':char; span.style.setProperty('--i',index); span.classList.add(animationClass); titleElement.appendChild(span); }); }
+
+        // --- Intersection Observer for Animations ---
+        let observerInstance=null; const observerOptions={root:null,rootMargin:'0px 0px -40px 0px',threshold:0.02}; const observedElementsMap=new WeakMap(); function initializeObserver(){ if(observerInstance){observerInstance.disconnect();} if(!('IntersectionObserver' in window)){ console.warn("IntersectionObserver not supported."); document.querySelectorAll(".observer-target").forEach(el=>{ el.classList.add("visible"); if(el.classList.contains("section-title"))animateTitleOnVisible(el); el.style.opacity=''; el.style.transform=''; el.style.transitionDelay=''; }); return; } observerInstance=new IntersectionObserver((entries,observer)=>{ entries.forEach(entry=>{ if(entry.isIntersecting&&!observedElementsMap.has(entry.target)){ observedElementsMap.set(entry.target,true); entry.target.classList.add("visible"); let baseDelay=0.05; if(entry.target.classList.contains("section-title")){baseDelay=0.1;animateTitleOnVisible(entry.target);} else if(entry.target.classList.contains("student-card")||entry.target.classList.contains("gallery-item")){const index=parseInt(entry.target.getAttribute("data-index")||"0",10); const factor=entry.target.classList.contains("student-card")?0.05:0.065; baseDelay=0.15+Math.min(index*factor,1.3); entry.target.style.setProperty('--reveal-delay',`${baseDelay}s`); if(entry.target.classList.contains("student-card")){entry.target.style.setProperty('--i',index);} } else if(entry.target.classList.contains("footer-logo")){ const logos=Array.from(entry.target.parentElement.children).filter(el=>el.classList.contains('footer-logo')); const index=logos.indexOf(entry.target); if(index !== -1){baseDelay=0.25+index*0.12;} } else if(entry.target.matches('.hero-content')){baseDelay=0.1;} else if(entry.target.matches('.hero h1')){baseDelay=0.15;} else if(entry.target.matches('.hero p')){baseDelay=0.25;} else if(entry.target.matches('.hero .cta-buttons')){baseDelay=0.35;} else if(entry.target.matches('.section-title-container')){baseDelay=0.15;} else if(entry.target.matches('.wali-kelas-info')){baseDelay=0.25;} else if(entry.target.matches('.section-thank-you-message')){baseDelay=0.35;} else if(entry.target.matches('.farewell-message')){baseDelay=0.25;} else if(entry.target.matches('.farewell-icon')){baseDelay=0.5;} else if(entry.target.matches('.footer-links')){baseDelay=0.15;} else if(entry.target.matches('.main-footer p:not(.footer-credit):not(.footer-farewell-note)')){baseDelay=0.2;} else if(entry.target.matches('.footer-credit')){baseDelay=0.35;} else if(entry.target.matches('.footer-logo-container')){baseDelay=0.2;} else if(entry.target.matches('.footer-farewell-note')){baseDelay=0.4;} else if(entry.target.matches('.logo') || entry.target.matches('.menu-toggle') || entry.target.matches('.main-nav')) { baseDelay = 0.1; } else if (entry.target.matches('#info .section-subtitle') || entry.target.matches('#info p') || entry.target.matches('#memory-message-board')) { baseDelay = 0.2 + (entry.target.matches('#memory-message-board') ? 0.15 : 0); } else if(entry.target.matches('.section-subtitle')||entry.target.matches('.section-title-intro')){baseDelay=0.2;} if(!entry.target.style.getPropertyValue('--reveal-delay')){entry.target.style.transitionDelay=`${baseDelay}s`;} observer.unobserve(entry.target); } }); }, observerOptions); const elementsToObserve = document.querySelectorAll(".observer-target"); elementsToObserve.forEach(el=>{ el.classList.remove('visible','title-animated'); el.style.opacity=''; el.style.transform=''; el.style.transitionDelay='0s'; el.style.removeProperty('--reveal-delay'); observedElementsMap.delete(el); if(el.classList.contains('section-title')){const originalText=el.getAttribute('data-original-text'); if(originalText&&(el.textContent!==originalText||el.querySelector('span'))){ el.innerHTML=originalText;} } observerInstance.observe(el); }); }
+
+        // --- Gallery Modal Logic ---
+        function initializeGalleryModal(){ const galleryItems=document.querySelectorAll('.gallery-item'); const modal=document.getElementById('image-modal'); const modalImage=document.getElementById('modal-image'); const modalClose=document.getElementById('modal-close'); if(!modal||!modalImage||!modalClose||galleryItems.length===0){ return; } const openModal=(imgSrc,imgAlt)=>{modalImage.src=imgSrc; modalImage.alt=imgAlt||"Tampilan diperbesar"; modal.classList.add('active'); document.body.classList.add('modal-open'); modalClose.focus();}; const closeModal=()=>{modal.classList.remove('active'); document.body.classList.remove('modal-open');}; galleryItems.forEach(item=>{ item.addEventListener('click',()=>{const img=item.querySelector('img');if(img)openModal(img.src,img.alt);}); item.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); const img=item.querySelector('img');if(img)openModal(img.src,img.alt);}}); item.setAttribute('tabindex','0'); item.setAttribute('role', 'button'); }); modalClose.addEventListener('click',closeModal); modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal();}); document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&modal.classList.contains('active'))closeModal();}); }
+
+        // --- Memory Station Logic ---
+        const memoryMessages = [ { text: "Jangan pernah berhenti belajar, karena hidup tak pernah berhenti mengajarkan.", author: "Pesan Semesta" }, { text: "Ingatlah selalu perjuangan bersama, jadikan itu bahan bakar untuk terbang lebih tinggi.", author: "Wali Kelas - Hj. Rostati, S.Pd" }, { text: "Setiap pertemuan pasti ada perpisahan, tapi kenangan indah akan tetap tersimpan.", author: "Log Kapten MIPA 3" }, { text: "Masa depan adalah lembaran kosong. Tuliskan cerita terbaik versi dirimu!", author: "Transmisi Harapan" }, { text: "Kesalahan bukan akhir dari segalanya, tapi awal dari pembelajaran baru.", author: "Kode Alam Semesta" }, { text: "Tetaplah jadi bintang yang bersinar dengan caramu sendiri.", author: "Konstelasi Persahabatan" } ]; let currentMessageIndex = 0; let messageIntervalId = null; const messageContainer = document.getElementById('current-message'); const messageTextElem = document.getElementById('message-text'); const messageAuthorElem = document.getElementById('message-author'); function displayNextMessage() { if (!messageContainer || !messageTextElem || !messageAuthorElem || memoryMessages.length === 0) return; messageContainer.classList.add('fading'); setTimeout(() => { currentMessageIndex = (currentMessageIndex + 1) % memoryMessages.length; const currentMsg = memoryMessages[currentMessageIndex]; messageTextElem.textContent = currentMsg.text; messageAuthorElem.textContent = currentMsg.author; messageContainer.classList.remove('fading'); }, 600); } function initializeMemoryStation() { if (messageIntervalId) { clearInterval(messageIntervalId); } if (memoryMessages.length > 0 && messageContainer) { const initialMsg = memoryMessages[currentMessageIndex]; messageTextElem.textContent = initialMsg.text; messageAuthorElem.textContent = initialMsg.author; messageContainer.style.opacity = 1; messageIntervalId = setInterval(displayNextMessage, 7000); console.log("Memory Station initialized and rotating messages."); } else { console.warn("Memory Station elements not found or no messages defined."); if(document.getElementById('memory-message-board')) { document.getElementById('memory-message-board').style.display = 'none'; } } }
+
+        // --- Foreground Shooting Stars Logic ---
+        function createShootingStar(){ const container=document.getElementById('shooting-star-container'); if(!container){return;} const star=document.createElement('div'); star.className='shooting-star'; const duration=Math.random()*2.5+1.5; const delay=Math.random()*8; const sizeScale=Math.random()*0.5+0.7; const tailLength=Math.random()*60+50; let startX,startY,endX,endY; const edgeMargin=10; const side=Math.random(); if(side<0.25){startX=random(edgeMargin,window.innerWidth-edgeMargin)+'px'; startY=-edgeMargin+'px'; endX=Number(startX.replace('px',''))-(random(-0.3,0.3)*window.innerWidth)+'px'; endY=(window.innerHeight+edgeMargin)+'px';} else if(side<0.5){startX=(window.innerWidth+edgeMargin)+'px'; startY=random(edgeMargin,window.innerHeight-edgeMargin)+'px'; endX=-edgeMargin+'px'; endY=Number(startY.replace('px',''))-(random(-0.3,0.3)*window.innerHeight)+'px';} else if(side<0.75){startX=random(edgeMargin,window.innerWidth-edgeMargin)+'px'; startY=(window.innerHeight+edgeMargin)+'px'; endX=Number(startX.replace('px',''))-(random(-0.3,0.3)*window.innerWidth)+'px'; endY=-edgeMargin+'px';} else {startX=-edgeMargin+'px'; startY=random(edgeMargin,window.innerHeight-edgeMargin)+'px'; endX=(window.innerWidth+edgeMargin)+'px'; endY=Number(startY.replace('px',''))-(random(-0.3,0.3)*window.innerHeight)+'px';} star.style.setProperty('--duration',`${duration}s`); star.style.setProperty('--delay',`${delay}s`); star.style.setProperty('--start-x',startX); star.style.setProperty('--start-y',startY); star.style.setProperty('--end-x',endX); star.style.setProperty('--end-y',endY); star.style.setProperty('--tail-length',`${tailLength}px`); star.style.setProperty('--size-scale',sizeScale); container.appendChild(star); const removeTimeout=(duration+delay)*1000+100; setTimeout(()=>{if(star.parentNode===container){star.remove();}}, removeTimeout); } let shootingStarIntervalId=null; function startShootingStars(){ if(shootingStarIntervalId)return; shootingStarIntervalId=setInterval(createShootingStar,1200); } function stopShootingStars(){ if(shootingStarIntervalId){clearInterval(shootingStarIntervalId); shootingStarIntervalId=null;} }
+
+        // --- Page Initialization Function ---
+        function initializePageComponents() {
+            console.log("Initializing Page Components v7.9.10..."); const primaryColorValue=getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(); const secondaryColorValue=getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim(); const rootStyle=document.documentElement.style; const parseColorToRgb=(colorValue)=>{ try { let r=0, g=0, b=0; if(colorValue.startsWith('#')){ const h = colorValue.substring(1); if(h.length===3){r=parseInt(h[0]+h[0],16);g=parseInt(h[1]+h[1],16);b=parseInt(h[2]+h[2],16);} else if(h.length===6){r=parseInt(h.substring(0,2),16);g=parseInt(h.substring(2,4),16);b=parseInt(h.substring(4,6),16);}} else if(colorValue.startsWith('rgb')){ const m = colorValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); if(m){[,r,g,b]=m.map(Number);} } return `${r}, ${g}, ${b}`; } catch(e){ console.warn(`Color parse failed: ${colorValue}`, e); return null; }}; const primaryRgb=parseColorToRgb(primaryColorValue); if(primaryRgb) rootStyle.setProperty('--primary-color-rgb', primaryRgb); else rootStyle.setProperty('--primary-color-rgb', '0, 229, 255'); const secondaryRgb=parseColorToRgb(secondaryColorValue); if(secondaryRgb) rootStyle.setProperty('--secondary-color-rgb', secondaryRgb); else rootStyle.setProperty('--secondary-color-rgb', '159, 47, 255'); const isDesktop=window.matchMedia('(min-width: 992px)').matches; const isTabletUp=window.matchMedia('(min-width: 576px)').matches; if(isDesktop && typeof THREE !== 'undefined') initThreeJS(); else { if(document.getElementById('threejs-canvas'))document.getElementById('threejs-canvas').style.display='none'; if(document.querySelector('.css-background-effects'))document.querySelector('.css-background-effects').style.display='none'; } if(isTabletUp && starCtx) initStars(); else if (starCanvas) starCanvas.style.display = 'none'; if(starRAFId) cancelAnimationFrame(starRAFId); if(starCtx && isTabletUp && document.body.classList.contains('loaded') && !document.hidden) { animateStars(performance.now()); } if(threeRAFId) cancelAnimationFrame(threeRAFId); if(isDesktop && scene && document.body.classList.contains('loaded') && !document.hidden) { animateThreeJS(); } startShootingStars(); window.addEventListener('scroll', handleScroll, { passive: true }); if(scrollToTopBtn) scrollToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); initializeObserver(); initializeGalleryModal(); initializeMemoryStation(); handleScroll(); setTimeout(() => { const hash=window.location.hash; if (hash && document.querySelector(hash) && (window.pageYOffset||document.documentElement.scrollTop)<50) { const target=document.querySelector(hash); if(target) { console.log("Scrolling to hash:", hash); const headerOffset=document.querySelector('.main-header')?document.querySelector('.main-header').offsetHeight+10:70; const elementPosition=target.getBoundingClientRect().top; const offsetPosition=elementPosition+window.pageYOffset-headerOffset; window.scrollTo({top:offsetPosition, behavior:'auto'}); setTimeout(handleScroll,100); } } }, 150); const music=document.getElementById('background-music'); if(music){ music.volume=0.3; const playPromise=music.play(); if(playPromise!==undefined){ playPromise.catch(e=>{console.warn("Music autoplay blocked. Interaction required.",e);}); } } console.log("Page components initialization complete.");
+        }
+
+        // --- Global Event Listeners ---
+        document.addEventListener('DOMContentLoaded', handlePageLoad); let resizeTimer; window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(()=>{ console.log("Debounced resize handler..."); canvasWidth=window.innerWidth; canvasHeight=window.innerHeight; windowHalfX=canvasWidth/2; windowHalfY=canvasHeight/2; resizeStarCanvas(); onWindowResizeThree(); const isDesktop=window.matchMedia('(min-width: 992px)').matches; const isTabletUp=window.matchMedia('(min-width: 576px)').matches; const bodyLoaded=document.body.classList.contains('loaded'); if(starCanvas) starCanvas.style.display=isTabletUp?'block':'none'; if(!isTabletUp&&starRAFId){cancelAnimationFrame(starRAFId);starRAFId=null;} else if(isTabletUp&&starCtx&&bodyLoaded&&!starRAFId&&!document.hidden){initStars();animateStars(performance.now());} const threeCanvas=document.getElementById('threejs-canvas'); const cssBgEffects=document.querySelector('.css-background-effects'); if(threeCanvas) threeCanvas.style.display=isDesktop?'block':'none'; if(cssBgEffects)cssBgEffects.style.display=isDesktop?'block':'none'; if(!isDesktop&&threeRAFId){cancelAnimationFrame(threeRAFId);threeRAFId=null;} else if(isDesktop&&typeof THREE !=='undefined'&&bodyLoaded&&!threeRAFId&&!document.hidden){if(!scene)initThreeJS();else animateThreeJS();} if(isDesktop)closeMobileMenu(); handleScroll(); }, 300); }, false); document.addEventListener("visibilitychange", ()=>{ const isHidden=document.hidden; const bodyLoaded=document.body.classList.contains('loaded'); console.log("Visibility changed, hidden:",isHidden); if(isHidden&&starRAFId){cancelAnimationFrame(starRAFId);starRAFId=null;} else if(!isHidden&&!starRAFId&&starCtx&&bodyLoaded&&window.matchMedia('(min-width: 576px)').matches){lastStarTime=performance.now();animateStars(lastStarTime);} if(isHidden&&threeRAFId){cancelAnimationFrame(threeRAFId);threeRAFId=null;} else if(!isHidden&&!threeRAFId&&renderer&&scene&&camera&&bodyLoaded&&window.matchMedia('(min-width: 992px)').matches){animateThreeJS();} if(isHidden)stopShootingStars();else startShootingStars(); const music=document.getElementById('background-music'); if(music){ if(isHidden&&!music.paused){music.pause();} else if(!isHidden&&music.paused&&music.readyState>=3){ const playPromise=music.play(); if(playPromise)playPromise.catch(e=>{}); } } });
+    </script>
+</body>
+</html>
