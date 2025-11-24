@@ -1,4 +1,4 @@
-# 🚀 Ekspedisi Kosmik: XII MIPA 3 Class Website
+#  Ekspedisi Kosmik: XII MIPA 3 Class Website
 
 ![Banner Project](https://via.placeholder.com/1200x400?text=XII+MIPA+3+Cosmic+Expedition)
 > **"Menuju Galaksi Masa Depan"**
@@ -9,13 +9,13 @@
 ![Threejs](https://img.shields.io/badge/threejs-black?style=for-the-badge&logo=three.js&logoColor=white)
 ![AI Generated](https://img.shields.io/badge/AI-100%25%20Generated-blueviolet?style=for-the-badge&logo=openai&logoColor=white)
 
-## 🌌 Tentang Proyek
+##  Tentang Proyek
 
 Website ini adalah rumah digital bagi **XII MIPA 3 SMAN 1 Losarang**. Mengusung tema *Space Exploration*, website ini bukan sekadar profil kelas biasa, melainkan sebuah eksperimen dalam **AI-Driven Development**.
 
 Seluruh struktur kode, mulai dari animasi roket preloader, sistem partikel Three.js, hingga logika "Stasiun Memori", dihasilkan melalui serangkaian *prompting* yang presisi kepada AI, tanpa penulisan kode manual (hand-coding).
 
-## ✨ Fitur Utama
+##  Fitur Utama
 
 Berdasarkan *codebase* `index.html`, berikut adalah fitur unggulan website ini:
 
@@ -29,7 +29,7 @@ Berdasarkan *codebase* `index.html`, berikut adalah fitur unggulan website ini:
 * **Immersive Audio:** Dilengkapi dengan *autoplay* background music (M83 - Outro) untuk pengalaman emosional.
 * **Rocket Preloader:** Animasi loading roket CSS yang halus sebelum masuk ke konten utama.
 
-## 🛠️ Teknologi
+##  Teknologi
 
 Proyek ini dibangun menggunakan teknologi web standar tanpa framework berat, namun dengan integrasi library 3D:
 
@@ -38,7 +38,7 @@ Proyek ini dibangun menggunakan teknologi web standar tanpa framework berat, nam
 * **Fonts:** Poppins (Google Fonts).
 * **Development Method:** AI Prompt Engineering.
 
-## 📸 Galeri Tampilan
+##  Galeri Tampilan
 
 | Desktop View (Cosmic) | Mobile View (Responsive) |
 |:---:|:---:|
@@ -75,5 +75,4 @@ Karena ini adalah web statis, kamu tidak perlu menginstal Node.js atau backend a
 ---
 
 <p align="center">
-  Dibuat dengan ❤️ dan 🤖 Kecerdasan Buatan.
 </p>
