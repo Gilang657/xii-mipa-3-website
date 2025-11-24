@@ -44,7 +44,7 @@ Proyek ini dibangun menggunakan teknologi web standar tanpa framework berat, nam
 |:---:|:---:|
 | ![Desktop View](./Website%20kelas%20XII%20MIPA/assets/Screenshot_20251124_100644.png) | ![Mobile View](./Website%20kelas%20XII%20MIPA/assets/WhatsApp%20Image%202025-11-24%20at%2010.16.55%20AM.jpeg) |
 
-## 🤖 Bagaimana Ini Dibuat? (AI Workflow)
+##  Bagaimana Ini Dibuat? (AI Workflow)
 
 Proyek ini menantang metode coding tradisional. Alih-alih menulis sintaks, pengembang bertindak sebagai **Arsitek & Prompter**.
 
@@ -52,7 +52,7 @@ Proyek ini menantang metode coding tradisional. Alih-alih menulis sintaks, penge
 2.  **Implementasi 3D:** Menginstruksikan AI untuk *generate* kode Three.js yang membuat partikel menyebar dan asteroid berputar.
 3.  **Refinement:** Meminta AI memperbaiki responsivitas pada mobile (menonaktifkan Three.js berat di HP dan menggantinya dengan Canvas ringan).
 
-## 💻 Cara Menjalankan (Local)
+##  Cara Menjalankan (Local)
 
 Karena ini adalah web statis, kamu tidak perlu menginstal Node.js atau backend apapun.
 
