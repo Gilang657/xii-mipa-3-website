@@ -42,7 +42,7 @@ Proyek ini dibangun menggunakan teknologi web standar tanpa framework berat, nam
 
 | Desktop View (Cosmic) | Mobile View (Responsive) |
 |:---:|:---:|
-| ![Desktop](https://via.placeholder.com/400x300?text=3D+Particles+View) | ![Mobile](https://via.placeholder.com/200x400?text=Mobile+Menu) |
+| ![Desktop View](./assets/Screenshot_20251124_100644.png) | ![Mobile View](./assets/WhatsApp%20Image%202025-11-24%20at%2010.16.55%20AM.jpeg) |
 
 ## 🤖 Bagaimana Ini Dibuat? (AI Workflow)
 
